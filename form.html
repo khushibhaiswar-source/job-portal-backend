@@ -1,45 +1,27 @@
+<!-- form.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>User Input Form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal Form</title>
 </head>
 <body>
-  <h2>User Information Form</h2>
-  <form id="userForm">
-    <label>Name:</label><br>
-    <input type="text" name="name" placeholder="Enter your name" required><br><br>
+    <h1>Job Portal Submission Form</h1>
+    <form action="/submit" method="POST">
+        <label for="name">Name:</label><br>
+        <input type="text" name="name" required><br><br>
 
-    <label>Email:</label><br>
-    <input type="email" name="email" placeholder="Enter your email" required><br><br>
+        <label for="email">Email:</label><br>
+        <input type="email" name="email" required><br><br>
 
-    <label>Age:</label><br>
-    <input type="number" name="age" placeholder="Enter your age" required><br><br>
+        <label for="age">Age:</label><br>
+        <input type="number" name="age" required><br><br>
 
-    <label>Feedback:</label><br>
-    <textarea name="feedback" placeholder="Write your feedback" required></textarea><br><br>
+        <label for="feedback">Feedback:</label><br>
+        <textarea name="feedback" rows="4" cols="50"></textarea><br><br>
 
-    <button type="submit">Submit</button>
-  </form>
-
-  <script>
-    const form = document.getElementById("userForm");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const data = {
-        name: form.name.value,
-        email: form.email.value,
-        age: form.age.value,
-        feedback: form.feedback.value
-      };
-      const res = await fetch("http://10.2.8.247:3000/input", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-      const responseText = await res.text();
-      alert(responseText);
-      form.reset();
-    });
-  </script>
+        <button type="submit">Submit</button>
+    </form>
 </body>
 </html>
