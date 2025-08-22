@@ -132,9 +132,17 @@ app.post(
       const imageFile = await uploadToGridFS(req.files.image?.[0]);
       const documentFile = await uploadToGridFS(req.files.document?.[0]);
 
-      const body = req.body;
+      // ⚡ Minimal fix: convert numeric fields to numbers
+      const fixedBody = {
+        ...req.body,
+        age: req.body.age ? Number(req.body.age) : undefined,
+        yearsExperience: req.body.yearsExperience
+          ? Number(req.body.yearsExperience)
+          : undefined,
+      };
+
       const newSubmission = new Submission({
-        ...body,
+        ...fixedBody,
         imageFile,
         documentFile,
       });
