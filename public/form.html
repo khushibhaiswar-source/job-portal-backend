@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Accessible Job Portal – Full Form</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <main class="container">
+    <h1>Accessible Job Portal – Registration</h1>
+    <p class="subtext">All fields from your flow are included. “Other” shows a text box. Multi-selects show chips.</p>
+
+    <form id="jobForm" action="/submit" method="POST" enctype="multipart/form-data" novalidate>
+      <!-- Profile Check + Role -->
+      <fieldset>
+        <legend>Profile Check & Role</legend>
+
+        <label>Do you already have a profile?</label>
+        <select name="hasProfile" required>
+          <option value="">Select</option>
+          <option>Log-in</option>
+          <option>Sign-up</option>
+        </select>
+
+        <label>Your Role</label>
+        <select name="role" required>
+          <option value="">Select</option>
+          <option>Job Seeker</option>
+          <option>Employer</option>
+        </select>
+      </fieldset>
+
+      <!-- Basic Details -->
+      <fieldset>
+        <legend>Basic Details</legend>
+
+        <label>Full Name</label>
+        <input type="text" name="name" required placeholder="e.g., Asha Sharma"/>
+
+        <label>Age</label>
+        <input type="number" name="age" min="16" max="100" required/>
+
+        <label>Gender</label>
+        <select name="gender" required>
+          <option value="">Select</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+
+        <label>Highest Education</label>
+        <select name="education" required>
+          <option value="">Select</option>
+          <option>High School</option>
+          <option>Diploma</option>
+          <option>Bachelor’s</option>
+          <option>Master’s</option>
+        </select>
+
+        <label>Phone</label>
+        <input type="tel" name="phone" placeholder="+91 9XXXXXXXXX" />
+
+        <label>Email</label>
+        <input type="email" name="email" required placeholder="you@example.com"/>
+
+        <label>Password</label>
+        <input type="password" name="password" id="password" required
+               aria-describedby="pwdHelp"
+               placeholder="Min 8 chars, 1 uppercase; special chars optional"/>
+        <small id="pwdHelp">
+          Include at least 1 uppercase; minimum 8 characters. Special characters like @ # $ % are optional.
+        </small>
+        <div id="pwdStrength" class="meter" aria-live="polite"></div>
+      </fieldset>
+
+      <!-- Disability -->
+      <fieldset>
+        <legend>Disability</legend>
+
+        <label>Disability Type</label>
+        <select name="disability" id="disability">
+          <option value="">Select</option>
+          <option>Blind</option>
+          <option>Deaf</option>
+          <option>No hands</option>
+          <option>Other</option>
+        </select>
+
+        <div id="otherDisabilityWrap" class="hidden">
+          <label>Please specify</label>
+          <input type="text" name="otherDisability" placeholder="Type your disability"/>
+        </div>
+      </fieldset>
+
+      <!-- Experience -->
+      <fieldset>
+        <legend>Experience</legend>
+
+        <label>Are you a fresher or experienced?</label>
+        <select name="experienceStatus" id="experienceStatus">
+          <option value="">Select</option>
+          <option>Fresher</option>
+          <option>Experienced</option>
+        </select>
+
+        <div id="experiencedBlock" class="hidden">
+          <label>Previous job type</label>
+          <input type="text" name="previousJob" placeholder="e.g., Teaching, Call Center, Data Entry, Office Assistant, Shop Work" />
+
+          <label>Years of experience</label>
+          <select name="yearsExperience">
+            <option value="">Select</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4+</option>
+          </select>
+
+          <label>Last job title</label>
+          <input type="text" name="lastJobTitle" placeholder="e.g., Customer Support Associate"/>
+        </div>
+      </fieldset>
+
+      <!-- Skills: tools & activities -->
+      <fieldset>
+        <legend>Skills – Tools & Activities</legend>
+
+        <label>Work tools you can use</label>
+        <input type="text" name="workTools" placeholder="e.g., Mobile, Computer, Screen Reader, Braille Machine"/>
+
+        <label>Work activities you can do</label>
+        <input type="text" name="workActivities" placeholder="e.g., Talking to people, Typing, Recording audio, Organizing files"/>
+      </fieldset>
+
+      <!-- Technical Skills (custom multi-select) -->
+      <fieldset>
+        <legend>Technical Skills</legend>
+        <div class="multi">
+          <button type="button" class="multi-toggle" data-target="techMenu">Select technical skills ▼</button>
+          <div class="multi-menu" id="techMenu" data-output="techOutput" data-name="technicalSkills">
+            <label><input type="checkbox" value="Microsoft Excel"> Microsoft Excel</label>
+            <label><input type="checkbox" value="Using Email and Internet"> Using Email and Internet</label>
+            <label><input type="checkbox" value="Computer Networking"> Computer Networking</label>
+            <label><input type="checkbox" value="Programming"> Programming (Python, Java, etc.)</label>
+            <label><input type="checkbox" value="Database Management"> Database Management (SQL, Access)</label>
+            <label><input type="checkbox" value="Screen Reader usage"> Screen Reader usage (NVDA, JAWS)</label>
+            <label><input type="checkbox" value="Other" data-other="otherTechnicalSkills"> Other</label>
+          </div>
+          <div id="techOutput" class="chips" aria-live="polite"></div>
+          <input type="hidden" name="technicalSkills" value="">
+          <div id="otherTechnicalSkillsWrap" class="hidden">
+            <label>Other technical skills</label>
+            <input type="text" name="otherTechnicalSkills" placeholder="Add other technical skills"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Non-Technical Skills (custom multi-select) -->
+      <fieldset>
+        <legend>Non-Technical Skills</legend>
+        <div class="multi">
+          <button type="button" class="multi-toggle" data-target="nonTechMenu">Select non-technical skills ▼</button>
+          <div class="multi-menu" id="nonTechMenu" data-output="nonTechOutput" data-name="nonTechnicalSkills">
+            <label><input type="checkbox" value="Communication Skills"> Communication Skills</label>
+            <label><input type="checkbox" value="Problem Solving"> Problem Solving</label>
+            <label><input type="checkbox" value="Time Management"> Time Management</label>
+            <label><input type="checkbox" value="Customer Service"> Customer Service</label>
+            <label><input type="checkbox" value="Teamwork"> Teamwork</label>
+            <label><input type="checkbox" value="Adaptability"> Adaptability</label>
+            <label><input type="checkbox" value="Other" data-other="otherNonTechnicalSkills"> Other</label>
+          </div>
+          <div id="nonTechOutput" class="chips" aria-live="polite"></div>
+          <input type="hidden" name="nonTechnicalSkills" value="">
+          <div id="otherNonTechnicalSkillsWrap" class="hidden">
+            <label>Other non-technical skills</label>
+            <input type="text" name="otherNonTechnicalSkills" placeholder="Add other non-technical skills"/>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Job Interest Category -->
+      <fieldset>
+        <legend>Job Interest Category</legend>
+        <label>What do you want mostly?</label>
+        <select name="jobInterestCategory" required>
+          <option value="">Select</option>
+          <option>Work on a computer or phone</option>
+          <option>Talk to people and help them</option>
+          <option>Do both</option>
+        </select>
+      </fieldset>
+
+      <!-- Job Preferences -->
+      <fieldset>
+        <legend>Job Preferences</legend>
+
+        <label>Job Mode</label>
+        <select name="jobMode" required>
+          <option value="">Select</option>
+          <option>Remote</option>
+          <option>On-site</option>
+          <option>Hybrid</option>
+        </select>
+
+        <label>Assistive Tech Needs</label>
+        <div class="multi">
+          <button type="button" class="multi-toggle" data-target="assistMenu">Select assistive tech ▼</button>
+          <div class="multi-menu" id="assistMenu" data-output="assistOutput" data-name="assistiveTech">
+            <label><input type="checkbox" value="Screen Reader"> Screen Reader</label>
+            <label><input type="checkbox" value="Speech-to-text"> Speech-to-text</label>
+            <label><input type="checkbox" value="Adaptive Hardware"> Adaptive Hardware</label>
+            <label><input type="checkbox" value="None"> None</label>
+            <label><input type="checkbox" value="Other" data-other="otherAssistiveTech"> Other</label>
+          </div>
+          <div id="assistOutput" class="chips" aria-live="polite"></div>
+          <input type="hidden" name="assistiveTech" value="">
+        </div>
+        <div id="otherAssistiveTechWrap" class="hidden">
+          <label>Other assistive tech</label>
+          <input type="text" name="otherAssistiveTech" placeholder="Add other assistive tech"/>
+        </div>
+
+        <label>Physical Requirements You Can Meet</label>
+        <div class="multi">
+          <button type="button" class="multi-toggle" data-target="physicalMenu">Select physical requirements ▼</button>
+          <div class="multi-menu" id="physicalMenu" data-output="physicalOutput" data-name="physicalRequirements">
+            <label><input type="checkbox" value="Sitting Long Hours"> Sitting Long Hours</label>
+            <label><input type="checkbox" value="Light Mobility"> Light Mobility</label>
+            <label><input type="checkbox" value="Tactile Skills"> Tactile Skills</label>
+            <label><input type="checkbox" value="None"> None</label>
+          </div>
+          <div id="physicalOutput" class="chips" aria-live="polite"></div>
+          <input type="hidden" name="physicalRequirements" value="">
+        </div>
+
+        <label>Accommodation Needed</label>
+        <div class="multi">
+          <button type="button" class="multi-toggle" data-target="accomMenu">Select accommodation ▼</button>
+          <div class="multi-menu" id="accomMenu" data-output="accomOutput" data-name="accommodation">
+            <label><input type="checkbox" value="Job Coach"> Job Coach</label>
+            <label><input type="checkbox" value="Workplace Adjustments"> Workplace Adjustments</label>
+            <label><input type="checkbox" value="Prosthetic-friendly"> Prosthetic-friendly setup</label>
+            <label><input type="checkbox" value="Voice-only workflow"> Voice-only workflow</label>
+            <label><input type="checkbox" value="None"> None</label>
+            <label><input type="checkbox" value="Other" data-other="otherAccommodation"> Other</label>
+          </div>
+          <div id="accomOutput" class="chips" aria-live="polite"></div>
+          <input type="hidden" name="accommodation" value="">
+        </div>
+        <div id="otherAccommodationWrap" class="hidden">
+          <label>Other accommodation</label>
+          <input type="text" name="otherAccommodation" placeholder="Add other accommodation"/>
+        </div>
+
+        <label>Training Willingness</label>
+        <div class="multi">
+          <button type="button" class="multi-toggle" data-target="trainMenu">Select training ▼</button>
+          <div class="multi-menu" id="trainMenu" data-output="trainOutput" data-name="training">
+            <label><input type="checkbox" value="Certification"> Certification</label>
+            <label><input type="checkbox" value="Orientation"> Orientation</label>
+            <label><input type="checkbox" value="Braille"> Braille</label>
+            <label><input type="checkbox" value="Coding skills"> Coding skills</label>
+            <label><input type="checkbox" value="Call-handling training"> Call-handling training</label>
+            <label><input type="checkbox" value="No training needed"> No training needed</label>
+          </div>
+          <div id="trainOutput" class="chips" aria-live="polite"></div>
+          <input type="hidden" name="training" value="">
+        </div>
+
+        <label>Salary Range</label>
+        <select name="salaryRange" required>
+          <option value="">Select</option>
+          <option>Below 10,000</option>
+          <option>10,000–20,000</option>
+          <option>Above 20,000</option>
+        </select>
+
+        <label>Shift Preference</label>
+        <select name="shiftPreference" required>
+          <option value="">Select</option>
+          <option>Day</option>
+          <option>Night</option>
+          <option>Any</option>
+        </select>
+
+        <label>Government Reservation</label>
+        <select name="govtReservation" required>
+          <option value="">Select</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+
+        <label>Location (City, State)</label>
+        <input type="text" name="location" placeholder="e.g., Mumbai, Maharashtra"/>
+      </fieldset>
+
+      <!-- Files -->
+      <fieldset>
+        <legend>Uploads</legend>
+        <label>Upload Image (max 500 KB)</label>
+        <input type="file" name="image" accept="image/*"/>
+
+        <label>Upload Document (PDF/DOC/DOCX, max 500 KB)</label>
+        <input type="file" name="document" accept=".pdf,.doc,.docx"/>
+        <small>Tip: If your PDF is large, please compress before uploading.</small>
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
