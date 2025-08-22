@@ -101,7 +101,10 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      // Function to upload file to GridFS
+      console.log("📩 Received form body:", req.body);
+      console.log("📂 Received files:", req.files);
+
+      // Function to upload file to GridFS (with metadata)
       const uploadToGridFS = (file) =>
         new Promise((resolve, reject) => {
           if (!file) return resolve("");
@@ -113,14 +116,16 @@ app.post(
               role: req.body.role || "Unknown",
               disability: req.body.disability || "Not provided",
               email: req.body.email || "Not provided",
-              phone: req.body.phone || "Not provided"
-            }
+              phone: req.body.phone || "Not provided",
+            },
           });
           const readable = new Readable();
           readable.push(file.buffer);
           readable.push(null);
           readable.pipe(writeStream);
-          writeStream.on("close", (uploadedFile) => resolve(uploadedFile.filename));
+          writeStream.on("close", (uploadedFile) =>
+            resolve(uploadedFile.filename)
+          );
           writeStream.on("error", reject);
         });
 
