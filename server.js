@@ -1,77 +1,143 @@
-// server.js
-require('dotenv').config(); // Load .env variables at the very top
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const multer = require("multer");
+const Grid = require("gridfs-stream");
+const { Readable } = require("stream");
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 10000; // Use PORT from .env or fallback
+const PORT = process.env.PORT || 10000;
 
 // Middleware
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static("public"));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB Atlas'))
-    .catch(err => console.error('MongoDB connection error:', err));
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ Connected to MongoDB Atlas");
+  } catch (error) {
+    console.error("❌ MongoDB connection failed:", error.message);
+    process.exit(1);
+  }
+};
+connectDB();
 
-// Define Schema with validation
+const conn = mongoose.connection;
+let gfs;
+conn.once("open", () => {
+  gfs = Grid(conn.db, mongoose.mongo);
+  gfs.collection("uploads");
+});
+
+// Multer setup (store file in memory, then pipe to GridFS)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Schema for form data
 const submissionSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    age: { type: String, required: true },
-    feedback: { type: String, default: '' }
+  hasProfile: String,
+  role: String,
+  name: String,
+  age: Number,
+  gender: String,
+  education: String,
+  phone: String,
+  email: String,
+  password: String,
+  disability: String,
+  otherDisability: String,
+  experienceStatus: String,
+  previousJob: String,
+  yearsExperience: String,
+  lastJobTitle: String,
+  workTools: String,
+  workActivities: String,
+  technicalSkills: String,
+  otherTechnicalSkills: String,
+  nonTechnicalSkills: String,
+  otherNonTechnicalSkills: String,
+  jobInterestCategory: String,
+  jobMode: String,
+  assistiveTech: String,
+  otherAssistiveTech: String,
+  physicalRequirements: String,
+  accommodation: String,
+  otherAccommodation: String,
+  training: String,
+  salaryRange: String,
+  shiftPreference: String,
+  govtReservation: String,
+  location: String,
+  imageFile: String,
+  documentFile: String,
 });
 
-// Create Model
-const Submission = mongoose.model('Submission', submissionSchema);
+const Submission = mongoose.model("Submission", submissionSchema);
 
-// Serve form.html
-app.get('/form', (req, res) => {
-    res.sendFile(path.join(__dirname, 'form.html'));
+// Routes
+app.get("/", (req, res) => {
+  res.send("🌍 Job Portal Backend is Running");
 });
 
-// Redirect root to /form
-app.get('/', (req, res) => {
-    res.redirect('/form');
+app.get("/form", (req, res) => {
+  res.sendFile(__dirname + "/public/form.html");
 });
 
-// Handle form submission
-app.post('/submit', async (req, res) => {
-    console.log('Form data received:', req.body); // Debug: check incoming data
-    const { name, email, age, feedback } = req.body;
-
-    // Validation check
-    if (!name || !email || !age) {
-        return res.status(400).send('Name, email, and age are required.');
-    }
-
+app.post(
+  "/submit",
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "document", maxCount: 1 },
+  ]),
+  async (req, res) => {
     try {
-        const newSubmission = new Submission({ name, email, age, feedback });
-        await newSubmission.save();
-        res.send('Form submitted successfully!');
-    } catch (err) {
-        console.error('Error saving submission:', err);
-        res.status(500).send('Error saving submission.');
-    }
-});
+      // Function to upload file to GridFS
+      const uploadToGridFS = (file) =>
+        new Promise((resolve, reject) => {
+          if (!file) return resolve("");
+          const writeStream = gfs.createWriteStream({
+            filename: `${Date.now()}_${file.originalname}`,
+            content_type: file.mimetype,
+          });
+          const readable = new Readable();
+          readable.push(file.buffer);
+          readable.push(null);
+          readable.pipe(writeStream);
+          writeStream.on("close", (uploadedFile) => resolve(uploadedFile.filename));
+          writeStream.on("error", reject);
+        });
 
-// Endpoint to view all submissions
-app.get('/submissions', async (req, res) => {
-    try {
-        const allSubmissions = await Submission.find();
-        res.json(allSubmissions);
-    } catch (err) {
-        console.error('Error fetching submissions:', err);
-        res.status(500).send('Error fetching submissions.');
-    }
-});
+      const imageFile = await uploadToGridFS(req.files.image?.[0]);
+      const documentFile = await uploadToGridFS(req.files.document?.[0]);
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+      const body = req.body;
+      const newSubmission = new Submission({
+        ...body,
+        imageFile,
+        documentFile,
+      });
+
+      await newSubmission.save();
+      console.log("✅ Form data saved:", newSubmission);
+      res.send("🎉 Form submitted successfully!");
+    } catch (error) {
+      console.error("❌ Error saving submission:", error);
+      res.status(500).send("Error saving form data");
+    }
+  }
+);
+
+// Start server on all interfaces
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
