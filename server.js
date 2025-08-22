@@ -108,6 +108,13 @@ app.post(
           const writeStream = gfs.createWriteStream({
             filename: `${Date.now()}_${file.originalname}`,
             content_type: file.mimetype,
+            metadata: {
+              name: req.body.name || "Unknown",
+              role: req.body.role || "Unknown",
+              disability: req.body.disability || "Not provided",
+              email: req.body.email || "Not provided",
+              phone: req.body.phone || "Not provided"
+            }
           });
           const readable = new Readable();
           readable.push(file.buffer);
