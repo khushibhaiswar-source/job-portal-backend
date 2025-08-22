@@ -4,7 +4,6 @@ const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const multer = require("multer");
-const Grid = require("gridfs-stream");
 const { Readable } = require("stream");
 
 dotenv.config();
@@ -33,13 +32,14 @@ const connectDB = async () => {
 connectDB();
 
 const conn = mongoose.connection;
-let gfs;
+let gfsBucket;
 conn.once("open", () => {
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection("uploads");
+  gfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
+    bucketName: "uploads",
+  });
 });
 
-// Multer setup (store file in memory, then pipe to GridFS)
+// Multer setup (store file in memory)
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -104,35 +104,34 @@ app.post(
       console.log("📩 Received form body:", req.body);
       console.log("📂 Received files:", req.files);
 
-      // Function to upload file to GridFS (with metadata)
+      // Function to upload file to GridFSBucket
       const uploadToGridFS = (file) =>
         new Promise((resolve, reject) => {
           if (!file) return resolve("");
-          const writeStream = gfs.createWriteStream({
-            filename: `${Date.now()}_${file.originalname}`,
-            content_type: file.mimetype,
-            metadata: {
-              name: req.body.name || "Unknown",
-              role: req.body.role || "Unknown",
-              disability: req.body.disability || "Not provided",
-              email: req.body.email || "Not provided",
-              phone: req.body.phone || "Not provided",
-            },
-          });
+          const uploadStream = gfsBucket.openUploadStream(
+            `${Date.now()}_${file.originalname}`,
+            {
+              contentType: file.mimetype,
+              metadata: {
+                name: req.body.name || "Unknown",
+                role: req.body.role || "Unknown",
+                disability: req.body.disability || "Not provided",
+                email: req.body.email || "Not provided",
+                phone: req.body.phone || "Not provided",
+              },
+            }
+          );
           const readable = new Readable();
           readable.push(file.buffer);
           readable.push(null);
-          readable.pipe(writeStream);
-          writeStream.on("close", (uploadedFile) =>
-            resolve(uploadedFile.filename)
-          );
-          writeStream.on("error", reject);
+          readable.pipe(uploadStream);
+          uploadStream.on("finish", () => resolve(uploadStream.id.toString()));
+          uploadStream.on("error", reject);
         });
 
       const imageFile = await uploadToGridFS(req.files.image?.[0]);
       const documentFile = await uploadToGridFS(req.files.document?.[0]);
 
-      // ⚡ Minimal fix: convert numeric fields to numbers
       const fixedBody = {
         ...req.body,
         age: req.body.age ? Number(req.body.age) : undefined,
